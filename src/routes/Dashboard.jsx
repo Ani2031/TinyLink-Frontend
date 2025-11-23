@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import AddLinkForm from "../components/AddLinkForm";
 import LinkTable from "../components/LinkTable";
 
@@ -6,10 +7,15 @@ export default function Dashboard() {
     const [links, setLinks] = useState([]);
     const [filter, setFilter] = useState("");
 
+    const API_URL = import.meta.env.VITE_API_URL;
+
     const loadLinks = async () => {
-        const res = await fetch("http://localhost:5000/api/links");
-        const data = await res.json();
-        setLinks(data);
+        try {
+            const res = await axios.get(`${API_URL}/api/links`);
+            setLinks(res.data);
+        } catch (err) {
+            console.error("Failed to load links", err);
+        }
     };
 
     useEffect(() => {

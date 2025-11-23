@@ -1,6 +1,9 @@
 import { useState } from "react";
+import axios from "axios";
 
 export default function AddLinkForm({ refresh }) {
+    const API_URL = import.meta.env.VITE_API_URL;
+
     const [url, setUrl] = useState("");
     const [code, setCode] = useState("");
     const [loading, setLoading] = useState(false);
@@ -11,31 +14,24 @@ export default function AddLinkForm({ refresh }) {
         setError("");
         setLoading(true);
 
-        const res = await fetch("http://localhost:5000/api/links", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url, code }),
-        });
-
-        if (res.status === 409) {
-            setError("Custom code already exists!");
-            setLoading(false);
-            return;
+        try {
+            await axios.post(`${API_URL}/api/links`, { url, code });
+            setUrl("");
+            setCode("");
+            refresh();
+        } catch (err) {
+            if (err.response?.status === 409) {
+                setError("Custom code already exists!");
+            } else {
+                setError("Something went wrong. Try again.");
+            }
         }
 
-        const data = await res.json();
-
-        setUrl("");
-        setCode("");
-        refresh();
         setLoading(false);
     };
 
     return (
-        <form
-            onSubmit={submit}
-            className="border p-4 rounded shadow bg-white mb-4"
-        >
+        <form onSubmit={submit} className="border p-4 rounded shadow bg-white mb-4">
             <h3 className="font-semibold mb-2">Create Short Link</h3>
 
             <div className="flex flex-col gap-2">

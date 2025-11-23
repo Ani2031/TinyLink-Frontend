@@ -1,13 +1,17 @@
+import axios from "axios";
+
 export default function LinkTable({ links, refresh }) {
+    const API_URL = import.meta.env.VITE_API_URL;
 
     const deleteLink = async (code) => {
         if (!confirm("Delete this link?")) return;
 
-        await fetch(`http://localhost:5000/api/links/${code}`, {
-            method: "DELETE",
-        });
-
-        refresh();
+        try {
+            await axios.delete(`${API_URL}/api/links/${code}`);
+            refresh();
+        } catch (err) {
+            alert("Failed to delete. Try again.");
+        }
     };
 
     const copy = (text) => {
@@ -39,13 +43,15 @@ export default function LinkTable({ links, refresh }) {
                                     : "Never"}
                             </td>
                             <td className="p-3 flex gap-2">
+                                {/* Copy Button */}
                                 <button
-                                    onClick={() => copy(`http://localhost:5000/${l.code}`)}
+                                    onClick={() => copy(`${API_URL}/${l.code}`)}
                                     className="px-3 py-1 bg-gray-800 text-white rounded"
                                 >
                                     Copy
                                 </button>
 
+                                {/* Stats Page */}
                                 <button
                                     onClick={() => (window.location.href = `/code/${l.code}`)}
                                     className="px-3 py-1 bg-blue-600 text-white rounded"
@@ -53,6 +59,7 @@ export default function LinkTable({ links, refresh }) {
                                     Stats
                                 </button>
 
+                                {/* Delete */}
                                 <button
                                     onClick={() => deleteLink(l.code)}
                                     className="px-3 py-1 bg-red-600 text-white rounded"
